@@ -1,0 +1,5 @@
+# index.html と data.json のみ追跡。それ以外はすべて除外。
+/*
+!/.gitignore
+!/index.html
+!/data.json
