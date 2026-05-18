@@ -215,6 +215,41 @@
   .btn.primary:active{transform:translateY(3px);box-shadow:0 2px 0 #4338ca;}
   .btn.ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid var(--border);}
 
+  /* 問題ごとXP演出 */
+  .xpfloat{position:fixed;pointer-events:none;font-weight:900;font-size:1.5rem;color:var(--gold);
+    text-shadow:0 2px 8px rgba(0,0,0,.6);z-index:200;
+    animation:xpFloat 1.1s cubic-bezier(.2,.7,.2,1) forwards;}
+  @keyframes xpFloat{
+    0%{opacity:0;transform:translate(-50%,0) scale(.6)}
+    20%{opacity:1;transform:translate(-50%,-12px) scale(1.1)}
+    100%{opacity:0;transform:translate(-50%,-80px) scale(1)}
+  }
+  .miniLvup{position:fixed;left:50%;top:26%;transform:translateX(-50%) scale(.6);
+    background:linear-gradient(120deg,#fde047,#fb923c);color:#0b1530;
+    padding:14px 28px;border-radius:14px;font-weight:900;letter-spacing:.08em;
+    box-shadow:0 8px 24px rgba(0,0,0,.4), 0 0 0 4px rgba(253,224,71,.3);
+    z-index:300;pointer-events:none;text-align:center;
+    animation:miniLvIn .45s cubic-bezier(.34,1.56,.64,1) both, miniLvOut .35s ease 1.4s both;}
+  .miniLvup .small{display:block;font-size:.7rem;letter-spacing:.18em;opacity:.8;}
+  .miniLvup .big{display:block;font-size:1.6rem;line-height:1.1;margin-top:2px;}
+  .miniLvup .title{display:block;font-size:.95rem;margin-top:4px;}
+  @keyframes miniLvIn{0%{opacity:0;transform:translateX(-50%) scale(.4) rotate(-6deg)}60%{opacity:1;transform:translateX(-50%) scale(1.08) rotate(2deg)}100%{opacity:1;transform:translateX(-50%) scale(1) rotate(0)}}
+  @keyframes miniLvOut{to{opacity:0;transform:translateX(-50%) scale(.95) translateY(-10px)}}
+  .lvbadge-wrap{position:relative;}
+  .lvring{position:absolute;width:60px;height:60px;left:-6px;top:-6px;border-radius:50%;
+    border:3px solid var(--gold);pointer-events:none;
+    animation:lvRing .9s cubic-bezier(.2,.7,.2,1) forwards;}
+  @keyframes lvRing{
+    0%{opacity:1;transform:scale(.6)}
+    100%{opacity:0;transform:scale(1.8)}
+  }
+  .mconf{position:fixed;width:8px;height:12px;top:-20px;pointer-events:none;z-index:250;
+    animation:mconfFall var(--d,1.6s) linear forwards;}
+  @keyframes mconfFall{
+    0%{transform:translate(0,-20px) rotate(0);opacity:1}
+    100%{transform:translate(var(--x,0), 60vh) rotate(540deg);opacity:0}
+  }
+
   .conf{position:fixed;width:10px;height:14px;top:-20px;pointer-events:none;z-index:550;animation:confFall var(--d,2.2s) linear forwards;}
   @keyframes confFall{
     0%{transform:translate(0,-20px) rotate(0)}
@@ -234,7 +269,6 @@
     <div class="title-sub">〜 100の言葉を、指で書く 〜</div>
     <div class="title-btn-row">
       <button class="start-btn" @click="startNewSession">はじめる</button>
-      <button v-if="hasSavedSession" class="start-btn resume" @click="resumeSession">つづきから</button>
     </div>
     <div class="title-meta">
       Lv. <b>{{ profile.level }}</b> / {{ levelTitle(profile.level) }}<br>
@@ -248,7 +282,10 @@
   <div v-else class="play">
     <div class="topbar">
       <div class="lvbox">
-        <div class="lvbadge" :class="{bounce:lvBounce}" @click="showLevelList=true" title="レベル一覧を見る">{{ profile.level }}</div>
+        <div class="lvbadge-wrap">
+          <div class="lvbadge" :class="{bounce:lvBounce}" @click="showLevelList=true" title="レベル一覧を見る">{{ profile.level }}</div>
+          <div v-for="r in lvRings" :key="r" class="lvring"></div>
+        </div>
         <div>
           <div style="font-size:.7rem;letter-spacing:.16em;color:#94a3b8">LEVEL</div>
           <div class="lvtitle">{{ levelTitle(profile.level) }}</div>
@@ -303,6 +340,14 @@
        :style="{left:p.x+'px',top:p.y+'px','--x':p.dx+'px','--y':p.dy+'px','--r':p.r+'deg','--d':p.d+'s',color:p.c,'font-size':p.s+'rem'}">{{ p.t }}</div>
   <div v-for="c in confettis" :key="'c'+c.id" class="conf"
        :style="{left:c.x+'vw',background:c.color,'--x':c.dx+'vw','--d':c.d+'s',transform:'rotate('+c.r+'deg)'}"></div>
+  <div v-for="f in xpFloats" :key="'xf'+f.id" class="xpfloat" :style="{left:f.x+'px',top:f.y+'px'}">+{{ f.amount }}</div>
+  <div v-for="b in lvBanners" :key="'lb'+b.id" class="miniLvup">
+    <span class="small">🎉 LEVEL UP</span>
+    <span class="big">Lv.{{ b.from }} → Lv.{{ b.to }}</span>
+    <span class="title">{{ b.title }}</span>
+  </div>
+  <div v-for="c in miniConfs" :key="'mc'+c.id" class="mconf"
+       :style="{left:c.x+'vw',background:c.color,'--x':c.dx+'vw','--d':c.d+'s'}"></div>
 
   <div v-if="showLevelList" class="ll-overlay" @click.self="showLevelList=false">
     <div class="ll-card">
@@ -365,7 +410,7 @@ const TURN_SIZE = 10;
 const XP_THRESHOLD = 100;
 const XP_CORRECT = 5;
 const XP_MID = 2;
-const XP_PERFECT = 10;
+const XP_PERFECT = 5;
 const XP_COMBO_START = 3;
 const XP_COMBO_STEP = 1;
 const SPEED_THRESHOLD_MS = 60000;
@@ -466,6 +511,10 @@ createApp({
     const judgeClass = ref('');
     const lvBounce = ref(false);
     const xpFull = ref(false);
+    const xpFloats = ref([]);
+    const lvBanners = ref([]);
+    const lvRings = ref([]);
+    const miniConfs = ref([]);
 
     const showResult = ref(false);
     const resultStats = ref({});
@@ -561,8 +610,8 @@ createApp({
       return out;
     }
 
-    function startNewSession(){
-      if(!data.value || !data.value.length){ alert('もんだいデータがまだ ロードされていません'); return; }
+    function newSession(){
+      // 新規10問抽選
       clearSession();
       turnQuestions.value = pickQuestions(TURN_SIZE);
       turnIndex.value = 0;
@@ -576,17 +625,28 @@ createApp({
       saveSession();
       nextTick(()=> answerInputEl.value && answerInputEl.value.focus());
     }
-    function resumeSession(){
-      try{
-        const s = JSON.parse(localStorage.getItem(SESSION_KEY));
-        turnQuestions.value = s.turnQuestions;
-        turnIndex.value = s.turnIndex||0;
-        turnResults.value = s.turnResults||[];
-        turnStartAt.value = s.turnStartAt || Date.now();
-        screen.value = 'play';
-        sessionLocked.value = false;
-        nextTick(()=> answerInputEl.value && answerInputEl.value.focus());
-      }catch(e){ startNewSession(); }
+    function startNewSession(){
+      // 「はじめる」ボタン: 保存セッションがあれば復元、なければ新規
+      if(!data.value || !data.value.length){ alert('もんだいデータがまだ ロードされていません'); return; }
+      if(hasSavedSession.value){
+        try{
+          const s = JSON.parse(localStorage.getItem(SESSION_KEY));
+          if(s && Array.isArray(s.turnQuestions) && s.turnQuestions.length && s.turnIndex < TURN_SIZE){
+            turnQuestions.value = s.turnQuestions;
+            turnIndex.value = s.turnIndex||0;
+            turnResults.value = s.turnResults||[];
+            turnStartAt.value = s.turnStartAt || Date.now();
+            answerInput.value = '';
+            judgeText.value=''; judgeClass.value='';
+            comboCount.value = 0;
+            screen.value = 'play';
+            sessionLocked.value = false;
+            nextTick(()=> answerInputEl.value && answerInputEl.value.focus());
+            return;
+          }
+        }catch(e){}
+      }
+      newSession();
     }
     function goTitle(){
       showResult.value = false;
@@ -622,8 +682,13 @@ createApp({
         profile.seen[currentQ.value.index] = (profile.seen[currentQ.value.index]||0) + 1;
       }
 
+      let immediateXp = 0;
       if(kind==='ok'){
         comboCount.value += 1;
+        immediateXp = XP_CORRECT;
+        if(comboCount.value >= XP_COMBO_START){
+          immediateXp += XP_COMBO_STEP * (comboCount.value - XP_COMBO_START + 1);
+        }
         flash('ok'); playSound(window.GOOD_SOUND);
         spawnRings();
         showStamp('ok', comboCount.value>=5 ? 'パーフェクト!' : 'せいかい!');
@@ -632,6 +697,7 @@ createApp({
         judgeText.value='⭐ せいかい!'; judgeClass.value='ok';
       } else if(kind==='mid'){
         comboCount.value = 0;
+        immediateXp = XP_MID;
         flash('mid'); playSound(window.GOOD_SOUND);
         showStamp('mid','おしい!');
         spawnParticles('mid', 1);
@@ -643,6 +709,7 @@ createApp({
         shaking.value = true; setTimeout(()=>shaking.value=false, 320);
         judgeText.value='せいかい: ' + currentQ.value.yomi; judgeClass.value='ng';
       }
+      if(immediateXp > 0) applyXp(immediateXp);
       saveSession();
       saveProfile();
 
@@ -679,6 +746,62 @@ createApp({
       }
     }
 
+    // 問題ごとXP加算 + ミニLvUp演出
+    function spawnXpFloat(amount){
+      const bar = document.querySelector('.xpbar');
+      if(!bar) return;
+      const rect = bar.getBoundingClientRect();
+      const pct = Math.min(100, Math.round(profile.xp/XP_THRESHOLD*100));
+      const f = { id: Date.now()+Math.random(), amount,
+        x: rect.left + rect.width * pct / 100,
+        y: rect.top - 12 };
+      xpFloats.value.push(f);
+      setTimeout(()=>{ xpFloats.value = xpFloats.value.filter(x => x.id !== f.id); }, 1200);
+    }
+    function spawnMiniLvUp(from, to){
+      const b = { id: Date.now()+Math.random(), from, to, title: titleOf(to) };
+      lvBanners.value.push(b);
+      setTimeout(()=>{ lvBanners.value = lvBanners.value.filter(x => x.id !== b.id); }, 1900);
+      const r = Date.now()+Math.random();
+      lvRings.value.push(r);
+      setTimeout(()=>{ lvRings.value = lvRings.value.filter(x => x !== r); }, 950);
+      lvBounce.value = true; setTimeout(()=> lvBounce.value=false, 700);
+      xpFull.value = true; setTimeout(()=> xpFull.value=false, 1000);
+      spawnMiniConfetti();
+    }
+    function spawnMiniConfetti(){
+      const colors = ['#fde047','#fbbf24','#86efac','#7dd3fc','#a78bfa','#fca5a5'];
+      const cs = [];
+      for(let i=0;i<20;i++){
+        cs.push({
+          id: 'mc'+Date.now()+'_'+i,
+          x: 30 + Math.random()*40,
+          dx: (Math.random()*2-1)*12,
+          color: colors[Math.floor(Math.random()*colors.length)],
+          d: 1.4 + Math.random()*0.6,
+        });
+      }
+      miniConfs.value.push(...cs);
+      setTimeout(()=>{ miniConfs.value = miniConfs.value.filter(x => !cs.includes(x)); }, 2200);
+    }
+    function applyXp(amount){
+      if(amount <= 0) return;
+      const oldLv = profile.level;
+      profile.xp += amount;
+      while(profile.xp >= XP_THRESHOLD && profile.level < LEVEL_TITLES.length){
+        profile.xp -= XP_THRESHOLD;
+        profile.level += 1;
+      }
+      if(profile.level >= LEVEL_TITLES.length){
+        profile.xp = Math.min(profile.xp, XP_THRESHOLD - 1);
+      }
+      if(profile.level > oldLv){
+        spawnMiniLvUp(oldLv, profile.level);
+      }
+      spawnXpFloat(amount);
+      saveProfile();
+    }
+
     function finishTurn(){
       playSound(window.RESULT_SOUND);
       const ok = turnResults.value.filter(r=>r==='ok').length;
@@ -688,6 +811,7 @@ createApp({
         if(r==='ok'){ cur+=1; if(cur>maxCombo) maxCombo=cur; }
         else cur=0;
       }
+      // 内訳(表示用)。正答/おしい/コンボは submitAnswer で即時加算済み。
       const xpCorrect = ok*XP_CORRECT;
       const xpMid = mid*XP_MID;
       let xpCombo = 0;
@@ -700,17 +824,26 @@ createApp({
       const speed = (perfect && elapsed<SPEED_THRESHOLD_MS) ? XP_SPEED : 0;
       const total = xpCorrect+xpMid+xpCombo+xpPerfect+speed;
 
+      // 終了ボーナス分のみここで加算。ただしミニLvUp演出は出さず派手演出に集約する。
+      const bonusXp = xpPerfect + speed;
       const oldLv = profile.level;
-      profile.xp += total;
-      let lvUps = 0;
-      while(profile.xp >= XP_THRESHOLD && profile.level < LEVEL_TITLES.length){
-        profile.xp -= XP_THRESHOLD;
-        profile.level += 1;
-        lvUps += 1;
+      if(bonusXp > 0){
+        profile.xp += bonusXp;
+        while(profile.xp >= XP_THRESHOLD && profile.level < LEVEL_TITLES.length){
+          profile.xp -= XP_THRESHOLD;
+          profile.level += 1;
+        }
+        if(profile.level>=LEVEL_TITLES.length){ profile.xp = Math.min(profile.xp, XP_THRESHOLD-1); }
       }
-      if(profile.level>=LEVEL_TITLES.length){ profile.xp = Math.min(profile.xp, XP_THRESHOLD-1); }
-      if(lvUps>0){ lvUpInfo.value = { from: oldLv, to: profile.level }; lvBounce.value=true; setTimeout(()=>lvBounce.value=false, 700); xpFull.value=true; setTimeout(()=>xpFull.value=false, 1200); spawnConfetti(); }
-      else lvUpInfo.value = null;
+      const lvUps = profile.level - oldLv;
+      if(lvUps>0){
+        lvUpInfo.value = { from: oldLv, to: profile.level };
+        lvBounce.value=true; setTimeout(()=>lvBounce.value=false, 700);
+        xpFull.value=true; setTimeout(()=>xpFull.value=false, 1200);
+        spawnConfetti();
+      } else {
+        lvUpInfo.value = null;
+      }
 
       resultStats.value = { ok, mid, xpCorrect, xpMid, xpCombo, maxCombo, perfect, xpPerfect, speed, total };
       saveProfile();
@@ -719,7 +852,7 @@ createApp({
     }
     function nextTurn(){
       showResult.value = false;
-      startNewSession();
+      newSession();
     }
 
     function resetAll(){
@@ -811,7 +944,8 @@ createApp({
       lvBounce, xpFull, xpPercent,
       showResult, resultStats, lvUpInfo, nextTitle,
       showLevelList, levelRows,
-      startNewSession, resumeSession, submitAnswer, skipQuestion,
+      xpFloats, lvBanners, lvRings, miniConfs,
+      startNewSession, submitAnswer, skipQuestion,
       charClass, levelTitle, nextTurn, goTitle, resetAll
     };
   }
