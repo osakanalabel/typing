@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=900,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>タイピストへの道</title>
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <style>
@@ -25,7 +25,7 @@
   @media (pointer:coarse){
     .mobile-warn{display:flex !important;}
   }
-  .mobile-warn{display:none;position:fixed;inset:0;z-index:9999;background:#0b1530;color:#fff;align-items:center;justify-content:center;padding:24px;text-align:center;font-size:1.05rem;line-height:1.7;}
+  .mobile-warn{display:none;position:fixed;inset:0;z-index:9999;background:#0b1530;color:#fff;align-items:center;justify-content:center;padding:24px;text-align:center;font-size:1.1rem;line-height:1.8;}
 
   .title-screen{width:100%;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
   .title-logo{font-size:clamp(2.4rem, 5vw, 4rem);font-weight:900;letter-spacing:.08em;
@@ -321,8 +321,10 @@
 <body>
 <div id="app">
   <div class="mobile-warn">
-    このアプリは<b>パソコンのキーボード</b>専用です。<br>
-    PCのChromeなどで開いてください。
+    <div>
+      このアプリは<b>パソコンのキーボード</b>専用です。<br>
+      PCのChromeなどで開いてください。
+    </div>
   </div>
 
   <div v-if="screen==='title'" class="title-screen">
