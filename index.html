@@ -87,6 +87,68 @@
   .ll-close{margin-top:14px;align-self:center;font-size:1rem;padding:10px 28px;border-radius:999px;border:0;font-weight:800;letter-spacing:.06em;cursor:pointer;
     background:linear-gradient(120deg,#7dd3fc,#a78bfa);color:#0b1530;box-shadow:0 5px 0 #4338ca;}
   .ll-close:active{transform:translateY(3px);box-shadow:0 2px 0 #4338ca;}
+
+  /* help modal */
+  .help-btn{font-size:1rem;padding:12px 28px;border-radius:999px;border:0;color:#0b1530;font-weight:900;letter-spacing:.08em;
+    background:linear-gradient(120deg,#7dd3fc,#a78bfa);cursor:pointer;
+    box-shadow:0 5px 0 #4338ca, 0 10px 20px rgba(0,0,0,.3);transition:transform .1s ease;
+    display:inline-flex;align-items:center;gap:6px;}
+  .help-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #4338ca;}
+  .help-btn .ico{font-size:1.2rem;}
+  .header-help{position:fixed;top:18px;right:18px;width:42px;height:42px;border-radius:50%;
+    background:rgba(255,255,255,.1);color:#fff;font-size:1.3rem;font-weight:900;cursor:pointer;
+    border:1px solid var(--border);transition:transform .15s ease, background .15s ease;z-index:400;}
+  .header-help:hover{background:rgba(255,255,255,.18);transform:scale(1.08);}
+  .header-help:active{transform:scale(0.95);}
+  .help-overlay{position:fixed;inset:0;background:rgba(5,10,30,.82);backdrop-filter:blur(10px);
+    z-index:600;display:flex;align-items:center;justify-content:center;padding:18px;
+    animation:fadeIn .25s ease both;}
+  .help-card{width:min(640px,96vw);height:min(640px,88vh);display:flex;flex-direction:column;
+    background:linear-gradient(160deg,#1e293b,#312e81);border:1px solid var(--border);
+    border-radius:22px;box-shadow:0 30px 60px rgba(0,0,0,.6);
+    animation:helpCardIn .4s cubic-bezier(.34,1.56,.64,1) both;}
+  @keyframes helpCardIn{from{opacity:0;transform:translateY(20px) scale(.92)}to{opacity:1;transform:none}}
+  .help-head{padding:22px 24px 8px;border-bottom:1px solid var(--border);}
+  .help-head h2{margin:0;font-size:1.5rem;letter-spacing:.08em;
+    background:linear-gradient(120deg,#fde047,#7dd3fc);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .help-head .sub{font-size:.85rem;color:var(--ink2);margin-top:4px;}
+  .help-tabs{display:flex;gap:6px;padding:10px 18px 0;flex-wrap:wrap;}
+  .help-tab{padding:8px 14px;border-radius:10px 10px 0 0;border:0;cursor:pointer;
+    background:rgba(255,255,255,.05);color:var(--ink2);font-weight:700;font-size:.88rem;
+    border:1px solid transparent;}
+  .help-tab:hover{background:rgba(255,255,255,.1);}
+  .help-tab.active{background:rgba(167,139,250,.18);color:#fff;border:1px solid rgba(167,139,250,.4);border-bottom-color:transparent;}
+  .help-body{overflow-y:auto;flex:1;padding:18px 26px;}
+  .help-body::-webkit-scrollbar{width:8px}
+  .help-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:4px}
+  .help-section{margin-bottom:18px;}
+  .help-section h3{font-size:1.05rem;color:var(--gold);margin:0 0 8px;letter-spacing:.06em;
+    display:flex;align-items:center;gap:8px;}
+  .help-section h3 .emoji{font-size:1.4rem;}
+  .help-section p{margin:0 0 6px;font-size:.95rem;line-height:1.7;color:var(--ink);}
+  .help-section ul{margin:6px 0;padding-left:20px;font-size:.92rem;line-height:1.7;color:var(--ink);}
+  .help-section li{margin-bottom:4px;}
+  .help-section li b{color:var(--gold);}
+  .help-keys{display:grid;grid-template-columns:auto 1fr;gap:10px 14px;margin:8px 0;align-items:center;}
+  .help-keys kbd{display:inline-block;font-family:inherit;font-weight:800;font-size:.9rem;
+    background:rgba(255,255,255,.08);border:1px solid var(--border);
+    border-radius:6px;padding:4px 10px;color:#fff;min-width:48px;text-align:center;
+    box-shadow:0 2px 0 rgba(255,255,255,.05);}
+  .help-keys .desc{font-size:.9rem;color:var(--ink);line-height:1.4;}
+  .help-example{background:rgba(0,0,0,.25);border-radius:10px;padding:12px 14px;margin:8px 0;
+    border-left:3px solid var(--accent);}
+  .help-example .label{font-size:.7rem;letter-spacing:.18em;color:var(--accent);font-weight:800;margin-bottom:4px;}
+  .help-example .q{font-size:1.1rem;font-weight:700;margin-bottom:4px;}
+  .help-example .y{font-size:.88rem;color:var(--ink2);margin-bottom:6px;}
+  .help-example .a{font-size:.95rem;color:var(--gold);font-weight:700;margin-top:4px;}
+  .help-example .a .small{color:var(--ink2);font-size:.8rem;font-weight:500;margin-left:6px;}
+  .help-badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.7rem;font-weight:800;
+    letter-spacing:.08em;margin-right:4px;}
+  .help-badge.ok{background:rgba(134,239,172,.2);color:#86efac;border:1px solid #22c55e;}
+  .help-badge.mid{background:rgba(253,230,138,.2);color:#fde68a;border:1px solid #fbbf24;}
+  .help-badge.ng{background:rgba(252,165,165,.2);color:#fca5a5;border:1px solid #ef4444;}
+  .help-badge.bonus{background:rgba(167,139,250,.2);color:#c4b5fd;border:1px solid #a78bfa;}
+  .help-foot{padding:14px 24px 20px;border-top:1px solid var(--border);text-align:center;}
   @keyframes lvBounce{0%,100%{transform:scale(1)}40%{transform:scale(1.3) rotate(-8deg)}70%{transform:scale(.95)}}
   .lvtitle{font-size:.95rem;color:var(--ink2);font-weight:700;letter-spacing:.06em}
   .xpwrap{flex:1;min-width:0;}
@@ -109,6 +171,12 @@
   .qyomi .pending{opacity:.35}
   .qyomi .ok{color:#86efac}
   .qyomi .ng{color:#fca5a5;text-decoration:line-through;}
+  .qyomi .bonus-chance{color:var(--gold);font-weight:800;font-size:1rem;letter-spacing:.1em;
+    animation:bonusPulse 1.4s ease-in-out infinite;}
+  @keyframes bonusPulse{
+    0%,100%{opacity:.85;text-shadow:0 0 6px rgba(253,224,71,.3);}
+    50%{opacity:1;text-shadow:0 0 14px rgba(253,224,71,.7);}
+  }
 
   .inputrow{display:flex;gap:10px;margin-top:12px;}
   .inputrow input{flex:1;font-size:1.4rem;padding:14px 18px;border-radius:12px;border:2px solid var(--border);background:rgba(0,0,0,.3);color:#fff;letter-spacing:.06em;outline:none;transition:border-color .2s, box-shadow .2s;}
@@ -125,7 +193,8 @@
   .skip kbd{font-family:inherit;background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:4px;padding:1px 6px;}
 
   .stamp{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%) scale(.3);font-size:clamp(4rem,12vw,8rem);font-weight:900;
-    pointer-events:none;z-index:200;animation:stampIn .5s cubic-bezier(.34,1.56,.64,1) both, stampOut .4s ease 1.2s both;
+    pointer-events:none;z-index:200;white-space:nowrap;
+    animation:stampIn .5s cubic-bezier(.34,1.56,.64,1) both, stampOut .4s ease 1.2s both;
     text-shadow:0 8px 30px rgba(0,0,0,.6);}
   .stamp.ok{color:#86efac}
   .stamp.mid{color:#fde68a}
@@ -269,6 +338,7 @@
     <div class="title-sub">〜 100の言葉を、指で書く 〜</div>
     <div class="title-btn-row">
       <button class="start-btn" @click="startNewSession">はじめる</button>
+      <button class="help-btn" @click="showHelp=true"><span class="ico">❓</span>あそびかた</button>
     </div>
     <div class="title-meta">
       Lv. <b>{{ profile.level }}</b> / {{ levelTitle(profile.level) }}<br>
@@ -280,6 +350,7 @@
   </div>
 
   <div v-else class="play">
+    <button class="header-help" @click="showHelp=true" title="あそびかた">?</button>
     <div class="topbar">
       <div class="lvbox">
         <div class="lvbadge-wrap">
@@ -306,12 +377,14 @@
     <div class="card">
       <div class="qnum">
         Q {{ turnIndex + 1 }} / 10
-        <span class="qcat">{{ currentQ.category }}</span>
       </div>
       <div class="qtext">{{ currentQ.text }}</div>
       <div class="qyomi">
-        <span v-for="(ch,i) in currentQ.yomi" :key="i"
-              :class="charClass(i)">{{ ch }}</span>
+        <span v-if="bonusChance" class="bonus-chance">⭐ 変換ボーナスチャンス!</span>
+        <template v-else>
+          <span v-for="(ch,i) in currentQ.yomi" :key="i"
+                :class="charClass(i)">{{ ch }}</span>
+        </template>
       </div>
       <div class="inputrow">
         <input ref="answerInputEl"
@@ -370,6 +443,108 @@
     </div>
   </div>
 
+  <div v-if="showHelp" class="help-overlay" @click.self="showHelp=false">
+    <div class="help-card">
+      <div class="help-head">
+        <h2>あそびかた</h2>
+        <div class="sub">読み終わったら「とじる」を押してはじめよう!</div>
+      </div>
+      <div class="help-tabs">
+        <button v-for="t in HELP_TABS" :key="t.id" class="help-tab"
+                :class="{active: helpTab===t.id}" @click="helpTab=t.id">{{ t.label }}</button>
+      </div>
+      <div class="help-body">
+        <div v-if="helpTab==='basic'">
+          <div class="help-section">
+            <h3><span class="emoji">📖</span>このゲームは?</h3>
+            <p>画面に出てくる<b>問題の文章</b>を読んで、<b>その読みかた</b>をひらがなで打ちこむゲームだよ。</p>
+          </div>
+          <div class="help-section">
+            <h3><span class="emoji">⌨</span>打ちかた</h3>
+            <p>問題を読んで、その読みかたを入力したら <b style="color:var(--accent)">Enter</b> を押す。</p>
+            <div class="help-example">
+              <div class="label">れい</div>
+              <div class="q">猿も木から落ちる</div>
+              <div class="y">読みかた: さるもきからおちる</div>
+              <div class="a">→ さるもきからおちる <span class="small">と打って Enter</span></div>
+            </div>
+          </div>
+          <div class="help-section">
+            <h3><span class="emoji">🎯</span>1ターン = 10問</h3>
+            <p>10問終わると<b>リザルト画面</b>が出て、経験値がもらえる。経験値が100たまるとレベルアップ!</p>
+          </div>
+        </div>
+        <div v-if="helpTab==='keys'">
+          <div class="help-section">
+            <h3><span class="emoji">🎹</span>キーボードの使いかた</h3>
+            <div class="help-keys">
+              <kbd>Enter</kbd>
+              <div class="desc">答えを<b>決定</b>する</div>
+              <kbd>Esc</kbd>
+              <div class="desc">答えが分からない時に<b>スキップ</b>(まちがい扱い)</div>
+              <kbd>半角/<br>全角</kbd>
+              <div class="desc">入力を<b>ひらがな</b>と<b>英字</b>に切り替える</div>
+            </div>
+            <p style="margin-top:10px;font-size:.85rem;color:var(--ink2);">
+              ひらがなで打てない時は、大人の人に「IMEをひらがなにして」と聞いてみよう。
+            </p>
+          </div>
+        </div>
+        <div v-if="helpTab==='judge'">
+          <div class="help-section">
+            <h3><span class="emoji">✨</span>3つの判定</h3>
+            <p><span class="help-badge ok">せいかい</span>完ぺきな答え。経験値がふえる。</p>
+            <p><span class="help-badge mid">おしい!</span>3文字までの間違いなら半分の経験値。</p>
+            <p><span class="help-badge ng">ざんねん</span>4文字以上間違えると0点。答えが表示される。</p>
+          </div>
+          <div class="help-section">
+            <h3><span class="emoji">🔄</span>変換するとボーナス!</h3>
+            <p>ひらがなで打ってもOK。さらに<b style="color:var(--gold)">漢字やカタカナに変換して出題文と全く同じように打つとボーナス</b>がもらえる。</p>
+            <div class="help-example">
+              <div class="label">れい</div>
+              <div class="q">猿も木から落ちる</div>
+              <div class="a">「さるもきからおちる」 → ⭐せいかい (+5)</div>
+              <div class="a">「猿も木から落ちる」 → ⭐<span class="help-badge bonus">変換ボーナス</span>(+5+3)</div>
+            </div>
+          </div>
+        </div>
+        <div v-if="helpTab==='xp'">
+          <div class="help-section">
+            <h3><span class="emoji">⭐</span>経験値のもらいかた</h3>
+            <table class="xptbl">
+              <tr><td>せいかい 1問</td><td>+5</td></tr>
+              <tr><td>おしい! 1問</td><td>+2</td></tr>
+              <tr><td>3問連続正解(コンボ)</td><td>+1〜</td></tr>
+              <tr><td>変換ボーナス(漢字やカタカナで入力)</td><td>+3</td></tr>
+              <tr><td>10問全部せいかい(パーフェクト)</td><td>+5</td></tr>
+              <tr><td>1分以内にパーフェクト(スピード)</td><td>+10</td></tr>
+            </table>
+            <p style="font-size:.82rem;color:var(--ink2);">経験値が100たまるとレベルが1上がる。新しい<b>称号</b>がもらえるよ!</p>
+          </div>
+          <div class="help-section">
+            <h3><span class="emoji">🏆</span>称号</h3>
+            <p>レベルバッジをクリックすると、これまでの<b>称号</b>と、まだ見たことのない上のレベルのヒントが見られる。</p>
+          </div>
+        </div>
+        <div v-if="helpTab==='tips'">
+          <div class="help-section">
+            <h3><span class="emoji">💡</span>上手になるコツ</h3>
+            <ul>
+              <li><b>キーボードを見ない</b>で打てるようになると、速くなるよ。</li>
+              <li>はじめは<b>正かくにゆっくり</b>。だんだん速く打てるようになる。</li>
+              <li>同じ問題が何回も出てくるから、一度おぼえたら完ぺきに打てるはず!</li>
+              <li>レベルが上がると<b>新しい問題</b>もどんどん出てくる。</li>
+              <li>10問全部せいかいで「パーフェクト!」 1分以内でクリアで「スピード」ボーナス!</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="help-foot">
+        <button class="ll-close" @click="showHelp=false">とじる</button>
+      </div>
+    </div>
+  </div>
+
   <div v-if="showResult" class="modal-bg">
     <div class="modal">
       <h2>ターン リザルト</h2>
@@ -378,6 +553,7 @@
         <tr><td>せいかい × {{ resultStats.ok }} 問</td><td>+{{ resultStats.xpCorrect }}</td></tr>
         <tr v-if="resultStats.mid>0"><td>おしい × {{ resultStats.mid }} 問</td><td>+{{ resultStats.xpMid }}</td></tr>
         <tr v-if="resultStats.xpCombo>0"><td>コンボ ボーナス (最大{{ resultStats.maxCombo }})</td><td>+{{ resultStats.xpCombo }}</td></tr>
+        <tr v-if="resultStats.xpBonusChar>0"><td>変換ボーナス × {{ resultStats.charBonusCount }} 問</td><td>+{{ resultStats.xpBonusChar }}</td></tr>
         <tr v-if="resultStats.perfect"><td>パーフェクト ボーナス</td><td>+{{ resultStats.xpPerfect }}</td></tr>
         <tr v-if="resultStats.speed>0"><td>スピード ボーナス</td><td>+{{ resultStats.speed }}</td></tr>
         <tr class="total"><td>合計獲得 EXP</td><td>+{{ resultStats.total }}</td></tr>
@@ -415,6 +591,7 @@ const XP_COMBO_START = 3;
 const XP_COMBO_STEP = 1;
 const SPEED_THRESHOLD_MS = 60000;
 const XP_SPEED = 10;
+const XP_BONUS_CHAR = 3;  // 変換ボーナス(漢字/カタカナ/アルファベット完全一致)
 
 const LEVEL_TITLES = [
   // Lv.1-5  基礎(段位)
@@ -463,6 +640,17 @@ function normalize(s){
   s = s.replace(/[ァ-ヶ]/g, ch => String.fromCharCode(ch.charCodeAt(0)-0x60));
   return s.replace(/[\s　、。・「」！？!?]/g,'');
 }
+// text 一致判定用。yomi 用 normalize と違い、句読点・記号は保持する。
+function normalizeText(s){
+  if(!s) return '';
+  s = s.replace(/[ァ-ヶ]/g, ch => String.fromCharCode(ch.charCodeAt(0)-0x60));
+  return s.replace(/[\s　]/g,'');
+}
+// text が「ひらがな以外の文字(漢字・カタカナ・アルファベット)」を含むか
+function hasNonHiragana(s){
+  if(!s) return false;
+  return /[一-鿿㐀-䶿々ヶァ-ヶーA-Za-z]/.test(s);
+}
 function lev(a,b){
   if(a===b) return 0;
   const n=a.length, m=b.length;
@@ -491,6 +679,7 @@ createApp({
     const turnQuestions = ref([]);
     const turnIndex = ref(0);
     const turnResults = ref([]);
+    const turnBonus = ref([]);  // boolean[] : 各問題で変換ボーナスを取れたか
     const turnStartAt = ref(0);
     const hasSavedSession = ref(false);
 
@@ -521,6 +710,15 @@ createApp({
     const lvUpInfo = ref(null);
     const sessionLocked = ref(false);
     const showLevelList = ref(false);
+    const showHelp = ref(false);
+    const helpTab = ref('basic');
+    const HELP_TABS = [
+      {id:'basic', label:'きほん'},
+      {id:'keys',  label:'キー'},
+      {id:'judge', label:'判定'},
+      {id:'xp',    label:'経験値'},
+      {id:'tips',  label:'コツ'},
+    ];
     const levelRows = computed(()=>{
       return LEVEL_TITLES.map((t, idx)=>{
         const lv = idx + 1;
@@ -540,6 +738,10 @@ createApp({
       const lv = profile.level + 1;
       if(lv > LEVEL_TITLES.length) return '';
       return visibleTitleOf(profile.level, lv);
+    });
+    // 入力中にひらがな以外を検知したら変換ボーナスチャンス表示に切替
+    const bonusChance = computed(()=>{
+      return hasNonHiragana(currentQ.value.text) && hasNonHiragana(answerInput.value);
     });
 
     function loadProfile(){
@@ -562,6 +764,7 @@ createApp({
           turnQuestions: turnQuestions.value,
           turnIndex: turnIndex.value,
           turnResults: turnResults.value,
+          turnBonus: turnBonus.value,
           turnStartAt: turnStartAt.value,
         };
         localStorage.setItem(SESSION_KEY, JSON.stringify(s));
@@ -616,6 +819,7 @@ createApp({
       turnQuestions.value = pickQuestions(TURN_SIZE);
       turnIndex.value = 0;
       turnResults.value = [];
+      turnBonus.value = [];
       turnStartAt.value = Date.now();
       answerInput.value = '';
       judgeText.value=''; judgeClass.value='';
@@ -635,6 +839,7 @@ createApp({
             turnQuestions.value = s.turnQuestions;
             turnIndex.value = s.turnIndex||0;
             turnResults.value = s.turnResults||[];
+            turnBonus.value = s.turnBonus || [];
             turnStartAt.value = s.turnStartAt || Date.now();
             answerInput.value = '';
             judgeText.value=''; judgeClass.value='';
@@ -664,18 +869,32 @@ createApp({
     function submitAnswer(){
       if(sessionLocked.value) return;
       if(screen.value!=='play') return;
-      const typed = normalize(answerInput.value);
-      const target = normalize(currentQ.value.yomi);
-      if(!typed){ return; }
+      if(!answerInput.value){ return; }
       sessionLocked.value = true;
 
-      const d = lev(typed, target);
-      let kind;
-      if(d===0) kind='ok';
-      else if(d<=3) kind='mid';
-      else kind='ng';
+      // 1) text 完全一致(変換ボーナス)を先にチェック
+      let kind = 'ng';
+      let charBonus = false;
+      if(hasNonHiragana(currentQ.value.text)){
+        const typedRaw = normalizeText(answerInput.value);
+        const targetRaw = normalizeText(currentQ.value.text);
+        if(typedRaw === targetRaw){
+          kind = 'ok';
+          charBonus = true;
+        }
+      }
+      // 2) text一致しなかった場合は yomi 編集距離で判定
+      if(!charBonus){
+        const typed = normalize(answerInput.value);
+        const target = normalize(currentQ.value.yomi);
+        const d = lev(typed, target);
+        if(d===0) kind='ok';
+        else if(d<=3) kind='mid';
+        else kind='ng';
+      }
 
       turnResults.value.push(kind);
+      turnBonus.value.push(charBonus);
       profile.totalAnswered += 1;
       if(kind==='ok') profile.totalCorrect += 1;
       if(typeof currentQ.value.index === 'number'){
@@ -689,12 +908,18 @@ createApp({
         if(comboCount.value >= XP_COMBO_START){
           immediateXp += XP_COMBO_STEP * (comboCount.value - XP_COMBO_START + 1);
         }
+        if(charBonus){
+          immediateXp += XP_BONUS_CHAR;
+        }
         flash('ok'); playSound(window.GOOD_SOUND);
         spawnRings();
-        showStamp('ok', comboCount.value>=5 ? 'パーフェクト!' : 'せいかい!');
+        const stampText = charBonus ? '変換ボーナス!'
+                       : (comboCount.value>=5 ? 'パーフェクト!' : 'せいかい!');
+        showStamp('ok', stampText);
         spawnParticles('ok', comboCount.value);
         if(comboCount.value>=3) showCombo(comboCount.value);
-        judgeText.value='⭐ せいかい!'; judgeClass.value='ok';
+        judgeText.value = charBonus ? '⭐ 変換ボーナス! +' + immediateXp : '⭐ せいかい!';
+        judgeClass.value='ok';
       } else if(kind==='mid'){
         comboCount.value = 0;
         immediateXp = XP_MID;
@@ -730,20 +955,20 @@ createApp({
 
     function skipQuestion(){
       if(sessionLocked.value) return;
-      if(!answerInput.value){
-        sessionLocked.value=true;
-        turnResults.value.push('ng');
-        profile.totalAnswered += 1;
-        flash('ng'); playSound(window.BAD_SOUND);
-        showStamp('ng','スキップ');
-        judgeText.value='せいかい: ' + currentQ.value.yomi; judgeClass.value='ng';
-        saveSession(); saveProfile();
-        setTimeout(()=>{
-          sessionLocked.value=false;
-          if(turnIndex.value>=TURN_SIZE-1) finishTurn();
-          else { turnIndex.value+=1; answerInput.value=''; judgeText.value=''; judgeClass.value=''; saveSession(); nextTick(()=> answerInputEl.value && answerInputEl.value.focus()); }
-        }, 1100);
-      }
+      sessionLocked.value=true;
+      comboCount.value = 0;
+      turnResults.value.push('ng');
+      turnBonus.value.push(false);
+      profile.totalAnswered += 1;
+      flash('ng'); playSound(window.BAD_SOUND);
+      showStamp('ng','スキップ');
+      judgeText.value='せいかい: ' + currentQ.value.yomi; judgeClass.value='ng';
+      saveSession(); saveProfile();
+      setTimeout(()=>{
+        sessionLocked.value=false;
+        if(turnIndex.value>=TURN_SIZE-1) finishTurn();
+        else { turnIndex.value+=1; answerInput.value=''; judgeText.value=''; judgeClass.value=''; saveSession(); nextTick(()=> answerInputEl.value && answerInputEl.value.focus()); }
+      }, 1100);
     }
 
     // 問題ごとXP加算 + ミニLvUp演出
@@ -811,18 +1036,20 @@ createApp({
         if(r==='ok'){ cur+=1; if(cur>maxCombo) maxCombo=cur; }
         else cur=0;
       }
-      // 内訳(表示用)。正答/おしい/コンボは submitAnswer で即時加算済み。
+      // 内訳(表示用)。正答/おしい/コンボ/変換ボーナスは submitAnswer で即時加算済み。
       const xpCorrect = ok*XP_CORRECT;
       const xpMid = mid*XP_MID;
       let xpCombo = 0;
       if(maxCombo>=XP_COMBO_START){
         for(let c=XP_COMBO_START;c<=maxCombo;c++) xpCombo += XP_COMBO_STEP*(c-XP_COMBO_START+1);
       }
+      const charBonusCount = turnBonus.value.filter(Boolean).length;
+      const xpBonusChar = charBonusCount * XP_BONUS_CHAR;
       const perfect = ok===TURN_SIZE;
       const xpPerfect = perfect?XP_PERFECT:0;
       const elapsed = Date.now() - turnStartAt.value;
       const speed = (perfect && elapsed<SPEED_THRESHOLD_MS) ? XP_SPEED : 0;
-      const total = xpCorrect+xpMid+xpCombo+xpPerfect+speed;
+      const total = xpCorrect+xpMid+xpCombo+xpBonusChar+xpPerfect+speed;
 
       // 終了ボーナス分のみここで加算。ただしミニLvUp演出は出さず派手演出に集約する。
       const bonusXp = xpPerfect + speed;
@@ -845,7 +1072,7 @@ createApp({
         lvUpInfo.value = null;
       }
 
-      resultStats.value = { ok, mid, xpCorrect, xpMid, xpCombo, maxCombo, perfect, xpPerfect, speed, total };
+      resultStats.value = { ok, mid, xpCorrect, xpMid, xpCombo, maxCombo, charBonusCount, xpBonusChar, perfect, xpPerfect, speed, total };
       saveProfile();
       clearSession();
       showResult.value = true;
@@ -931,6 +1158,8 @@ createApp({
       }
       detectSaved();
       window.addEventListener('keydown', (e)=>{
+        if(showHelp.value && e.key==='Escape'){ showHelp.value=false; e.preventDefault(); return; }
+        if(showLevelList.value && e.key==='Escape'){ showLevelList.value=false; e.preventDefault(); return; }
         if(screen.value==='title' && e.key==='Enter'){ startNewSession(); }
         if(showResult.value && e.key==='Enter'){ nextTurn(); }
       });
@@ -944,6 +1173,8 @@ createApp({
       lvBounce, xpFull, xpPercent,
       showResult, resultStats, lvUpInfo, nextTitle,
       showLevelList, levelRows,
+      showHelp, helpTab, HELP_TABS,
+      bonusChance,
       xpFloats, lvBanners, lvRings, miniConfs,
       startNewSession, submitAnswer, skipQuestion,
       charClass, levelTitle, nextTurn, goTitle, resetAll
