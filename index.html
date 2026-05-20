@@ -1005,7 +1005,10 @@ createApp({
         }, 900);
       } else {
         // 誤答(mid/ng)はユーザー操作待ち。FX終了後にロックは解く。
-        setTimeout(()=>{ sessionLocked.value=false; }, 500);
+        setTimeout(()=>{
+          sessionLocked.value=false;
+          nextTick(()=> answerInputEl.value && answerInputEl.value.focus());
+        }, 500);
         awaitingNext.value = true;
       }
     }
@@ -1238,6 +1241,9 @@ createApp({
         if(showLevelList.value && e.key==='Escape'){ showLevelList.value=false; e.preventDefault(); return; }
         if(screen.value==='title' && e.key==='Enter'){ startNewSession(); }
         if(showResult.value && e.key==='Enter'){ nextTurn(); }
+        if(screen.value==='play' && awaitingNext.value && e.key==='Enter'){
+          e.preventDefault(); confirmNext();
+        }
       });
     });
 
