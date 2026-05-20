@@ -190,6 +190,12 @@
   .judge.mid{color:#fde68a;text-shadow:0 0 12px rgba(253,230,138,.6)}
   .judge.ng{color:#fca5a5;text-shadow:0 0 12px rgba(252,165,165,.6)}
 
+  .textdiff{margin-top:8px;padding:10px 14px;border-radius:10px;background:rgba(0,0,0,.28);border-left:3px solid var(--mid);}
+  .textdiff .td-label{font-size:.72rem;letter-spacing:.14em;color:var(--ink2);margin-bottom:4px;}
+  .textdiff .td-line{font-size:1.15rem;font-weight:700;letter-spacing:.06em;line-height:1.5;}
+  .textdiff .td-line .same{color:#e2e8f0;}
+  .textdiff .td-line .diff{color:#fca5a5;background:rgba(239,68,68,.22);border-radius:4px;padding:0 3px;text-decoration:underline wavy #ef4444;}
+  .textdiff .td-line .miss{color:#fde68a;opacity:.7;text-decoration:line-through;margin:0 2px;}
   .skip{margin-top:6px;text-align:right;font-size:.78rem;color:#94a3b8}
   .skip kbd{font-family:inherit;background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:4px;padding:1px 6px;}
 
@@ -393,6 +399,10 @@
                placeholder="ひらがなで入力してEnter">
       </div>
       <div class="judge" :class="judgeClass">{{ judgeText }}</div>
+      <div v-if="textDiff" class="textdiff">
+        <div class="td-label">入力した文字:</div>
+        <div class="td-line"><span v-for="(p,i) in textDiff" :key="i" :class="p.cls">{{ p.ch }}</span></div>
+      </div>
       <div class="skip">スキップ: <kbd>Esc</kbd> / こたえる: <kbd>Enter</kbd></div>
     </div>
   </div>
@@ -646,6 +656,36 @@ function hasNonHiragana(s){
   if(!s) return false;
   return /[一-鿿㐀-䶿々ヶァ-ヶーA-Za-z]/.test(s);
 }
+// 入力(typed)と正解(target)の文字単位diff。LCSベース。
+// 戻り値: [{ch, cls}] cls は 'same' | 'diff'(入力した余分/間違い) | 'miss'(足りない正解文字)
+function diffChars(typed, target){
+  const n = typed.length, m = target.length;
+  // LCSテーブル
+  const dp = [];
+  for(let i=0;i<=n;i++){ dp.push(new Array(m+1).fill(0)); }
+  for(let i=1;i<=n;i++){
+    for(let j=1;j<=m;j++){
+      if(typed[i-1]===target[j-1]) dp[i][j] = dp[i-1][j-1]+1;
+      else dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
+    }
+  }
+  // バックトラックして編集列を組み立て
+  const out = [];
+  let i=n, j=m;
+  while(i>0 && j>0){
+    if(typed[i-1]===target[j-1]){
+      out.push({ch:typed[i-1], cls:'same'}); i--; j--;
+    } else if(dp[i-1][j] >= dp[i][j-1]){
+      out.push({ch:typed[i-1], cls:'diff'}); i--;
+    } else {
+      out.push({ch:target[j-1], cls:'miss'}); j--;
+    }
+  }
+  while(i>0){ out.push({ch:typed[i-1], cls:'diff'}); i--; }
+  while(j>0){ out.push({ch:target[j-1], cls:'miss'}); j--; }
+  return out.reverse();
+}
+
 function lev(a,b){
   if(a===b) return 0;
   const n=a.length, m=b.length;
@@ -693,6 +733,7 @@ createApp({
     const shaking = ref(false);
     const judgeText = ref('');
     const judgeClass = ref('');
+    const textDiff = ref(null);
     const lvBounce = ref(false);
     const xpFull = ref(false);
     const xpFloats = ref([]);
@@ -817,7 +858,7 @@ createApp({
       turnBonus.value = [];
       turnStartAt.value = Date.now();
       answerInput.value = '';
-      judgeText.value=''; judgeClass.value='';
+      judgeText.value=''; judgeClass.value=''; textDiff.value=null;
       comboCount.value = 0;
       screen.value = 'play';
       sessionLocked.value = false;
@@ -837,7 +878,7 @@ createApp({
             turnBonus.value = s.turnBonus || [];
             turnStartAt.value = s.turnStartAt || Date.now();
             answerInput.value = '';
-            judgeText.value=''; judgeClass.value='';
+            judgeText.value=''; judgeClass.value=''; textDiff.value=null;
             comboCount.value = 0;
             screen.value = 'play';
             sessionLocked.value = false;
@@ -870,12 +911,17 @@ createApp({
       // 1) text 完全一致(変換ボーナス)を先にチェック
       let kind = 'ng';
       let charBonus = false;
+      let attemptedBonus = false;
       if(hasNonHiragana(currentQ.value.text)){
         const typedRaw = normalizeText(answerInput.value);
         const targetRaw = normalizeText(currentQ.value.text);
         if(typedRaw === targetRaw){
           kind = 'ok';
           charBonus = true;
+        } else if(hasNonHiragana(answerInput.value)){
+          // 変換ボーナスを狙ったが外した: diffを記録
+          attemptedBonus = true;
+          textDiff.value = diffChars(answerInput.value, currentQ.value.text);
         }
       }
       // 2) text一致しなかった場合は yomi 編集距離で判定
@@ -895,6 +941,9 @@ createApp({
       if(typeof currentQ.value.index === 'number'){
         profile.seen[currentQ.value.index] = (profile.seen[currentQ.value.index]||0) + 1;
       }
+
+      // okなら差分表示はクリア
+      if(kind==='ok') textDiff.value = null;
 
       let immediateXp = 0;
       if(kind==='ok'){
@@ -941,7 +990,7 @@ createApp({
         }else{
           turnIndex.value += 1;
           answerInput.value='';
-          judgeText.value=''; judgeClass.value='';
+          judgeText.value=''; judgeClass.value=''; textDiff.value=null;
           saveSession();
           nextTick(()=> answerInputEl.value && answerInputEl.value.focus());
         }
@@ -962,7 +1011,7 @@ createApp({
       setTimeout(()=>{
         sessionLocked.value=false;
         if(turnIndex.value>=TURN_SIZE-1) finishTurn();
-        else { turnIndex.value+=1; answerInput.value=''; judgeText.value=''; judgeClass.value=''; saveSession(); nextTick(()=> answerInputEl.value && answerInputEl.value.focus()); }
+        else { turnIndex.value+=1; answerInput.value=''; judgeText.value=''; judgeClass.value=''; textDiff.value=null; saveSession(); nextTick(()=> answerInputEl.value && answerInputEl.value.focus()); }
       }, 1100);
     }
 
@@ -1163,7 +1212,7 @@ createApp({
     return {
       screen, profile, data, hasSavedSession,
       turnQuestions, turnIndex, turnResults, currentQ,
-      answerInput, answerInputEl, shaking, judgeText, judgeClass,
+      answerInput, answerInputEl, shaking, judgeText, judgeClass, textDiff,
       stamp, flashKind, flashKey, particles, confettis, rings, comboBanner, comboCount,
       lvBounce, xpFull, xpPercent,
       showResult, resultStats, lvUpInfo, nextTitle,
