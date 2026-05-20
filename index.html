@@ -196,6 +196,13 @@
   .textdiff .td-line .same{color:#e2e8f0;}
   .textdiff .td-line .diff{color:#fca5a5;background:rgba(239,68,68,.22);border-radius:4px;padding:0 3px;text-decoration:underline wavy #ef4444;}
   .textdiff .td-line .miss{color:#fde68a;opacity:.7;text-decoration:line-through;margin:0 2px;}
+  .next-hint{margin-top:10px;padding:10px 14px;border-radius:10px;text-align:center;font-size:.9rem;font-weight:700;letter-spacing:.06em;color:#0b1530;
+    background:linear-gradient(120deg,#fde047,#fbbf24);cursor:pointer;
+    box-shadow:0 4px 0 #b45309, 0 8px 16px rgba(0,0,0,.3);
+    animation:nextHintPulse 1.4s ease-in-out infinite;}
+  .next-hint kbd{font-family:inherit;background:rgba(0,0,0,.18);border:1px solid rgba(0,0,0,.25);border-radius:5px;padding:2px 8px;margin:0 4px;font-weight:800;}
+  .next-hint:active{transform:translateY(2px);box-shadow:0 2px 0 #b45309, 0 4px 8px rgba(0,0,0,.3);}
+  @keyframes nextHintPulse{0%,100%{opacity:.92}50%{opacity:1}}
   .skip{margin-top:6px;text-align:right;font-size:.78rem;color:#94a3b8}
   .skip kbd{font-family:inherit;background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:4px;padding:1px 6px;}
 
@@ -203,6 +210,7 @@
     pointer-events:none;z-index:200;white-space:nowrap;
     animation:stampIn .5s cubic-bezier(.34,1.56,.64,1) both, stampOut .4s ease 1.2s both;
     text-shadow:0 8px 30px rgba(0,0,0,.6);}
+  .stamp.short{animation:stampIn .3s cubic-bezier(.34,1.56,.64,1) both, stampOut .25s ease .25s both;}
   .stamp.ok{color:#86efac}
   .stamp.mid{color:#fde68a}
   .stamp.ng{color:#fca5a5}
@@ -403,6 +411,9 @@
         <div class="td-label">入力した文字:</div>
         <div class="td-line"><span v-for="(p,i) in textDiff" :key="i" :class="p.cls">{{ p.ch }}</span></div>
       </div>
+      <div v-if="awaitingNext" class="next-hint" @click="confirmNext">
+        <kbd>Enter</kbd> または ここをクリックでつぎへ
+      </div>
       <div class="skip">スキップ: <kbd>Esc</kbd> / こたえる: <kbd>Enter</kbd></div>
     </div>
   </div>
@@ -413,7 +424,7 @@
   <div v-if="comboBanner" class="combo-banner" :key="comboBanner.key">
     COMBO <span class="combo-num">×{{ comboBanner.n }}</span>
   </div>
-  <div v-if="stamp" :class="['stamp', stamp.kind]" :key="stamp.key">{{ stamp.text }}</div>
+  <div v-if="stamp" :class="['stamp', stamp.kind, {short: stamp.short}]" :key="stamp.key">{{ stamp.text }}</div>
   <div v-for="p in particles" :key="p.id" class="particle"
        :style="{left:p.x+'px',top:p.y+'px','--x':p.dx+'px','--y':p.dy+'px','--r':p.r+'deg','--d':p.d+'s',color:p.c,'font-size':p.s+'rem'}">{{ p.t }}</div>
   <div v-for="c in confettis" :key="'c'+c.id" class="conf"
@@ -651,10 +662,11 @@ function normalizeText(s){
   s = s.replace(/[ァ-ヶ]/g, ch => String.fromCharCode(ch.charCodeAt(0)-0x60));
   return s.replace(/[\s　]/g,'');
 }
-// text が「ひらがな以外の文字(漢字・カタカナ・アルファベット)」を含むか
+// text が「変換が必要な文字(漢字・カタカナ・アルファベット)」を含むか。
+// 長音符「ー」・句読点・空白などは変換不要なので除外。
 function hasNonHiragana(s){
   if(!s) return false;
-  return /[一-鿿㐀-䶿々ヶァ-ヶーA-Za-z]/.test(s);
+  return /[一-鿿㐀-䶿々ァ-ヶA-Za-z]/.test(s);
 }
 // 入力(typed)と正解(target)の文字単位diff。LCSベース。
 // 戻り値: [{ch, cls}] cls は 'same' | 'diff'(入力した余分/間違い) | 'miss'(足りない正解文字)
@@ -734,6 +746,7 @@ createApp({
     const judgeText = ref('');
     const judgeClass = ref('');
     const textDiff = ref(null);
+    const awaitingNext = ref(false); // 誤答後にユーザーアクション待ち
     const lvBounce = ref(false);
     const xpFull = ref(false);
     const xpFloats = ref([]);
@@ -859,6 +872,7 @@ createApp({
       turnStartAt.value = Date.now();
       answerInput.value = '';
       judgeText.value=''; judgeClass.value=''; textDiff.value=null;
+      awaitingNext.value = false;
       comboCount.value = 0;
       screen.value = 'play';
       sessionLocked.value = false;
@@ -903,6 +917,7 @@ createApp({
     }
 
     function submitAnswer(){
+      if(awaitingNext.value){ confirmNext(); return; }
       if(sessionLocked.value) return;
       if(screen.value!=='play') return;
       if(!answerInput.value){ return; }
@@ -982,19 +997,35 @@ createApp({
       saveSession();
       saveProfile();
 
-      const delay = kind==='ok'? 900 : 1500;
-      setTimeout(()=>{
-        sessionLocked.value=false;
-        if(turnIndex.value >= TURN_SIZE-1){
-          finishTurn();
-        }else{
-          turnIndex.value += 1;
-          answerInput.value='';
-          judgeText.value=''; judgeClass.value=''; textDiff.value=null;
-          saveSession();
-          nextTick(()=> answerInputEl.value && answerInputEl.value.focus());
-        }
-      }, delay);
+      if(kind==='ok'){
+        // 正解はテンポよく自動進行
+        setTimeout(()=>{
+          sessionLocked.value=false;
+          advanceTurn();
+        }, 900);
+      } else {
+        // 誤答(mid/ng)はユーザー操作待ち。FX終了後にロックは解く。
+        setTimeout(()=>{ sessionLocked.value=false; }, 500);
+        awaitingNext.value = true;
+      }
+    }
+
+    function advanceTurn(){
+      awaitingNext.value = false;
+      if(turnIndex.value >= TURN_SIZE-1){
+        finishTurn();
+      }else{
+        turnIndex.value += 1;
+        answerInput.value='';
+        judgeText.value=''; judgeClass.value=''; textDiff.value=null;
+        saveSession();
+        nextTick(()=> answerInputEl.value && answerInputEl.value.focus());
+      }
+    }
+    function confirmNext(){
+      if(!awaitingNext.value) return;
+      if(sessionLocked.value) return;
+      advanceTurn();
     }
 
     function skipQuestion(){
@@ -1008,11 +1039,8 @@ createApp({
       showStamp('ng','スキップ');
       judgeText.value='せいかい: ' + currentQ.value.yomi; judgeClass.value='ng';
       saveSession(); saveProfile();
-      setTimeout(()=>{
-        sessionLocked.value=false;
-        if(turnIndex.value>=TURN_SIZE-1) finishTurn();
-        else { turnIndex.value+=1; answerInput.value=''; judgeText.value=''; judgeClass.value=''; textDiff.value=null; saveSession(); nextTick(()=> answerInputEl.value && answerInputEl.value.focus()); }
-      }, 1100);
+      setTimeout(()=>{ sessionLocked.value=false; }, 500);
+      awaitingNext.value = true;
     }
 
     // 問題ごとXP加算 + ミニLvUp演出
@@ -1134,7 +1162,11 @@ createApp({
     }
 
     function flash(kind){ flashKind.value = kind; flashKey.value += 1; setTimeout(()=>{ if(flashKind.value===kind) flashKind.value=''; }, 600); }
-    function showStamp(kind,text){ stamp.value = {kind,text,key: Date.now()+Math.random()}; setTimeout(()=>{ stamp.value=null; }, 1700); }
+    function showStamp(kind,text){
+      const short = (kind==='ng' || kind==='mid');
+      stamp.value = {kind,text,short,key: Date.now()+Math.random()};
+      setTimeout(()=>{ stamp.value=null; }, short ? 650 : 1700);
+    }
     function spawnParticles(kind, combo){
       combo = combo || 1;
       const colors = kind==='ok'? ['#86efac','#7dd3fc','#fde047','#a78bfa','#f472b6','#fb923c']
@@ -1212,7 +1244,7 @@ createApp({
     return {
       screen, profile, data, hasSavedSession,
       turnQuestions, turnIndex, turnResults, currentQ,
-      answerInput, answerInputEl, shaking, judgeText, judgeClass, textDiff,
+      answerInput, answerInputEl, shaking, judgeText, judgeClass, textDiff, awaitingNext,
       stamp, flashKind, flashKey, particles, confettis, rings, comboBanner, comboCount,
       lvBounce, xpFull, xpPercent,
       showResult, resultStats, lvUpInfo, nextTitle,
@@ -1220,7 +1252,7 @@ createApp({
       showHelp, helpTab, HELP_TABS,
       bonusChance,
       xpFloats, lvBanners, lvRings, miniConfs,
-      startNewSession, submitAnswer, skipQuestion,
+      startNewSession, submitAnswer, skipQuestion, confirmNext,
       charClass, levelTitle, nextTurn, goTitle, resetAll
     };
   }
